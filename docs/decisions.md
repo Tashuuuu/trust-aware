@@ -1,0 +1,1 @@
+In risk/risk_report.py, “high” mean the model is above the score where precision on train was at least 50%

@@ -1,0 +1,10 @@
+rule,fires,on_fraud,on_real,precision,recall,real_fire_rate
+asks_for_money,5,2,3,0.4,0.004,0.0
+no_experience_big_pay,61,14,47,0.23,0.027,0.004
+vague_company,2456,357,2099,0.145,0.681,0.176
+unrealistic_earnings,15,2,13,0.133,0.004,0.001
+email_but_no_website,470,50,420,0.106,0.095,0.035
+pressure,5,0,5,0.0,0.0,0.0
+chat_app_contact,29,0,29,0.0,0.0,0.002
+sensitive_documents,5,0,5,0.0,0.0,0.0
+scam_job_type,29,0,29,0.0,0.0,0.002

@@ -1,0 +1,61 @@
+skill,aliases
+python,python
+sql,sql
+mysql,mysql
+postgresql,postgresql|postgres
+mongodb,mongodb
+java,java
+javascript,javascript
+typescript,typescript
+c++,c++
+c#,c#
+php,php
+ruby,ruby
+html,html
+css,css
+react,react|reactjs|react.js
+node.js,node.js|nodejs
+angular,angular
+.net,.net|dotnet
+django,django
+flask,flask
+excel,excel|ms excel|microsoft excel
+power bi,power bi|powerbi
+tableau,tableau
+pandas,pandas
+numpy,numpy
+scikit-learn,scikit-learn|sklearn|scikit learn
+tensorflow,tensorflow
+pytorch,pytorch
+keras,keras
+machine learning,machine learning|ml
+deep learning,deep learning
+nlp,nlp|natural language processing
+computer vision,computer vision
+statistics,statistics|statistical
+data analysis,data analysis|data analytics
+data visualization,data visualization|data visualisation
+data entry,data entry
+git,git|github
+docker,docker
+kubernetes,kubernetes
+aws,aws|amazon web services
+azure,azure
+gcp,gcp|google cloud
+linux,linux
+spark,spark|pyspark
+hadoop,hadoop
+rest api,rest api|restful
+agile,agile|scrum
+communication,communication skills|communication
+teamwork,teamwork|team player
+problem solving,problem solving|problem-solving
+seo,seo
+social media,social media
+content writing,content writing
+customer service,customer service|customer support
+testing,manual testing|qa testing|software testing
+selenium,selenium
+photoshop,photoshop
+accounting,accounting|tally
+typing,typing speed|typing
