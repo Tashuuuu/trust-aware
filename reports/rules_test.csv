@@ -1,0 +1,6 @@
+rule,fires,on_fraud,on_real,precision,recall,real_fire_rate
+no_experience_big_pay,7,3,4,0.429,0.023,0.001
+vague_company,614,93,521,0.151,0.71,0.175
+email_but_no_website,141,9,132,0.064,0.069,0.044
+scam_job_type,3,0,3,0.0,0.0,0.001
+unrealistic_earnings,6,0,6,0.0,0.0,0.002

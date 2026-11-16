@@ -1,0 +1,82 @@
+[
+  {
+    "qid": "q1",
+    "text": "entry-level data analyst internship requiring Python and SQL",
+    "set": "core"
+  },
+  {
+    "qid": "q2",
+    "text": "machine learning internship for a fresher with Python and scikit-learn",
+    "set": "core"
+  },
+  {
+    "qid": "q3",
+    "text": "remote internship with no prior work experience required",
+    "set": "core"
+  },
+  {
+    "qid": "q4",
+    "text": "work-from-home data entry role promising high earnings with no experience",
+    "set": "core"
+  },
+  {
+    "qid": "q5",
+    "text": "software engineering internship requiring Java and database skills",
+    "set": "core"
+  },
+  {
+    "qid": "q6",
+    "text": "data science internship Python pandas",
+    "set": "extra"
+  },
+  {
+    "qid": "q7",
+    "text": "web developer internship JavaScript React",
+    "set": "extra"
+  },
+  {
+    "qid": "q8",
+    "text": "customer support work from home no experience",
+    "set": "extra"
+  },
+  {
+    "qid": "q9",
+    "text": "digital marketing intern social media",
+    "set": "extra"
+  },
+  {
+    "qid": "q10",
+    "text": "finance analyst entry level Excel",
+    "set": "extra"
+  },
+  {
+    "qid": "q11",
+    "text": "quality assurance tester fresher",
+    "set": "extra"
+  },
+  {
+    "qid": "q12",
+    "text": "content writer internship remote",
+    "set": "extra"
+  },
+  {
+    "qid": "q13",
+    "text": "NLP internship",
+    "set": "extra"
+  },
+  {
+    "qid": "q14",
+    "text": "database administrator junior SQL",
+    "set": "extra"
+  },
+  {
+    "qid": "q15",
+    "text": "earn money from home registration fee",
+    "set": "extra"
+  },
+  {
+    "qid": "q16",
+    "text": "deep sea welding internship",
+    "set": "extra"
+  }
+]
