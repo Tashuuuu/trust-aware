@@ -143,21 +143,24 @@ def build_index(model_name: str = MODEL_A, use_chunks: bool = False):
 
 
 def _load_index(model_name: str = MODEL_A, use_chunks: bool = False):
-    """Load FAISS index + doc_ids (lazy, cached in module globals)."""
+    """Load FAISS index + doc_ids (lazy, cached per tag)."""
     import faiss
-
-    global _model, _index, _doc_ids
 
     tag      = _model_tag(model_name, use_chunks)
     idx_path = INDEX_DIR / f"faiss_{tag}.index"
     ids_path = INDEX_DIR / f"doc_ids_{tag}.npy"
 
-    if _index is None or _model is None:
+    # Cache per tag so switching models works correctly
+    if not hasattr(_load_index, "_cache"):
+        _load_index._cache = {}
+    if tag not in _load_index._cache:
         from sentence_transformers import SentenceTransformer
-        _model   = SentenceTransformer(model_name)
-        _index   = faiss.read_index(str(idx_path))
-        _doc_ids = np.load(ids_path, allow_pickle=True)
-    return _model, _index, _doc_ids
+        _load_index._cache[tag] = (
+            SentenceTransformer(model_name),
+            faiss.read_index(str(idx_path)),
+            np.load(ids_path, allow_pickle=True),
+        )
+    return _load_index._cache[tag]
 
 
 def verify_faiss(query: str, model_name: str = MODEL_A, use_chunks: bool = False, top_k: int = 10):
