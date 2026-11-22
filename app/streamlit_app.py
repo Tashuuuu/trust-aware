@@ -105,8 +105,7 @@ def render(results, user_skills, key, explanations=None):
 if "has_searched" not in st.session_state:
     st.session_state.has_searched = False
 
-main_search = st.button("Search")
-if main_search or sidebar_search:
+if sidebar_search:
     st.session_state.has_searched = True
 
 if st.session_state.has_searched:
