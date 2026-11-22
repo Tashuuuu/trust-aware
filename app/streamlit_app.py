@@ -113,7 +113,8 @@ if st.session_state.has_searched:
         st.warning("Please enter a query in the sidebar.")
     else:
         user_skills = {s.strip().lower() for s in skills_in.split(",") if s.strip()}
-        user_skills |= extract_skills(query)
+        if not user_skills:
+            user_skills = extract_skills(query)
 
         def get_explanations(docs):
             if show_rag and explain:
