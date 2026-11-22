@@ -104,63 +104,10 @@ The primary dataset utilized is the **Employment Scam Aegean Dataset (EMSCAD)** 
 ---
 
 ## x. System Architecture
-```
-+-----------------------------------------------------------------------------------+
-|                            USER SEARCH & SKILL INPUT                              |
-|           Query: "entry-level data analyst internship requiring Python and SQL"   |
-|           User Profile Skills: {{python, sql}}                                      |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                   +----------------------+----------------------+
-                   |                                             |
-                   v                                             v
-+------------------------------------+        +-------------------------------------+
-|        SPARSE RETRIEVAL            |        |          DENSE RETRIEVAL            |
-|       (src/bm25_search.py)         |        |         (src/semantic.py)           |
-|  - Tokenization & Porter Stemmer   |        |  - SentenceTransformer Encoding     |
-|  - Okapi BM25 Inverted Index       |        |  - FAISS IndexFlatIP (Cosine Space) |
-|  - Generates Top-100 Doc Ranking   |        |  - Generates Top-100 Doc Ranking    |
-+------------------+-----------------+        +------------------+------------------+
-                   |                                             |
-                   +----------------------+----------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                         HYBRID RANK FUSION (RRF Engine)                           |
-|                         Score(d) = Σ [ 1 / (60 + Rank_m(d)) ]                     |
-|                         Top-k Candidates Selected (k = 5)                         |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                   +----------------------+----------------------+
-                   |                                             |
-                   v                                             v
-+------------------------------------+        +-------------------------------------+
-|      TRUST-AWARE RISK ENGINE       |        |       EVIDENCE PASSAGE RETRIEVER    |
-|      (risk/risk_report.py)         |        |         (src/rag_explain.py)        |
-|  - Heuristic Scam Rules (Regex)    |        |  - Document Chunking (130w, 20 ov)  |
-|  - SGD Logistic Classifier (Pr)    |        |  - Cosine Selection (Top-2 Chunks)  |
-|  - Warning Flags & Top Risk Terms  |        |  - Abstain Threshold Check (s < .3) |
-+------------------+-----------------+        +------------------+------------------+
-                   |                                             |
-                   +----------------------+----------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                        RAG EXPLANATION MODULE & GUARDRAILS                        |
-|                               (src/rag_explain.py)                                |
-|  - Prompt Assembly: Query + Top Chunks + Risk Signals + Extracted Skills          |
-|  - LLM Inference: Gemini 3.5 Flash (Deterministic Temperature = 0)                |
-|  - Guardrails: Citation Validator | Quote Verifier | Skill Override | Defamation   |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                         INTERACTIVE STREAMLIT DASHBOARD                           |
-|                             (app/streamlit_app.py)                                |
-|  - Method Selector (BM25 / Semantic / Hybrid) | Side-by-Side System Comparison    |
-|  - Grounded AI Explanations | Skill Overlap Tags | Transparent Risk Badges        |
-+-----------------------------------------------------------------------------------+
-```
+
+The Trust-Aware Internship Search System is structured as a multi-stage modular pipeline comprising four core operational layers: Retrieval, Trust/Risk Scoring, Explanation Generation, and Interface Presentation.
+
+![Figure 1: End-to-End System Architecture Pipeline Diagram](figures/fig1_architecture.png)  
 *Figure 1: End-to-End System Architecture Pipeline Diagram.*
 
 ---
@@ -328,52 +275,52 @@ This project demonstrates that combining classical BM25 retrieval, FAISS dense v
 ---
 
 ## xxiii. Individual Contributions
-The operational distribution of work across the project lifecycle was structured into two primary development phases. In the original project synopsis, tasks had tentatively been distributed across three team members (with several components designated as `[K]` for Kshitij Tripathi). However, active technical development was carried out exclusively by Akriti Sengar and Bhawna Rani. Akriti established the initial dataset foundation, preprocessing schema, and baseline components. Following this initial stage, Bhawna Rani assumed complete technical leadership, taking ownership of all advanced retrieval, vector indexing, hybrid fusion, evaluation pooling and annotation, RAG explanation engineering, low-level macOS debugging, UI refinement, and project documentation.
+The technical research, implementation, evaluation benchmarking, and report preparation for this project were collaboratively executed by Bhawna Rani and Akriti Sengar. Table 6 provides the complete breakdown of responsibilities and technical deliverables across all system modules, followed by detailed individual contribution summaries.
 
-### 1. Task Allocation Matrix (Planned vs. Actual Execution)
+### Table 6: Project Work Distribution and Responsibilities Matrix
 
-| Task ID & Description | Original Plan Owner | Actual Execution Owner | Contribution Type & Deliverables |
-| :--- | :--- | :--- | :--- |
-| **A0/B0: Repo & Environment Setup** | Akriti & Bhawna | Akriti & Bhawna | Repo setup, venv configuration, `requirements.txt`. |
-| **A1-A3: Corpus Inspection & Cleaning** | Akriti Sengar | Akriti Sengar | Raw EMSCAD download, EDA, `corpus.parquet` schema. |
-| **A6: Skills Lexicon & Extraction** | Akriti Sengar | Akriti (Initial) / Bhawna (Fix) | Initial regex lexicon; Bhawna fixed app skill priority. |
-| **A7: BM25 Baseline Retrieval** | Akriti Sengar | Akriti (Initial) / Bhawna (Live) | Initial BM25 script; Bhawna integrated live queries. |
-| **A10-A12: Risk Rules & Classifier** | Akriti `[K]` | Akriti Sengar | Initial regex rules, SGD model, `risk_reports.json`. |
-| **A13: Streamlit UI Scaffold** | Akriti `[K]` | Akriti Sengar | Initial single-page Streamlit app skeleton. |
-| **B1: 6 Core IR Concepts Study Notes** | Bhawna Rani | Bhawna Rani | Authored comprehensive notes in `docs/notes_bhawna.md`. |
-| **B2: Prototype Notebook Sample** | Bhawna Rani | Bhawna Rani | Built & ran `B2_prototype.ipynb` on EMSCAD sample. |
-| **B3: Dense Vector Embeddings** | Bhawna Rani | Bhawna Rani | Full corpus embeddings: MiniLM (doc & chunks) + Multi-QA. |
-| **B4: FAISS Indexing & Verification** | Bhawna Rani | Bhawna Rani | FAISS `IndexFlatIP`, `verify_faiss()`, tag cache bug fix. |
-| **B5-B6: Semantic Runs & Hybrid RRF** | Bhawna Rani | Bhawna Rani | Hand-crafted RRF engine, k-ablation, live query fusion. |
-| **B7/A8: Pool Generation & Labelling** | Joint Planned | **Bhawna Rani (EXTRA)** | Built `make_pool.py`, single-handedly labeled 517 rows. |
-| **B8: IR Metrics & ranx Cross-Check** | Bhawna Rani | Bhawna Rani | Custom P@5, MRR, nDCG@10 engine + `ranx` validation. |
-| **B9: Grounded RAG Explanations** | Kshitij `[K]` | **Bhawna Rani (EXTRA)** | Gemini 3.5 Flash RAG pipeline, 5 guardrails, disk cache. |
-| **B10: Manual RAG Evaluation & Audit** | Kshitij `[K]` | **Bhawna Rani (EXTRA)** | Scored 22 RAG instances on 3 criteria, citation audit. |
-| **B11: Streamlit App Integration & Fixes** | Joint Planned | **Bhawna Rani (EXTRA)** | Fixed imports, OpenMP macOS segfault, UI overhaul. |
-| **B12: Final Reports & Documentation** | Bhawna Rani | Bhawna Rani | Authored decisions log, retrieval report, and 24-sec report. |
+| Project Module / Component | Team Member Responsible | Key Tasks & Technical Deliverables |
+| :--- | :--- | :--- |
+| **Repository & Environment Setup** | Akriti Sengar & Bhawna Rani | Git configuration, Python venv, dependencies setup. |
+| **Corpus Acquisition & Exploration** | Akriti Sengar | Raw EMSCAD download, licensing check, EDA notebook. |
+| **Data Cleaning & Corpus Schema** | Akriti Sengar | HTML tag stripping, deduplication, `corpus.parquet`. |
+| **Skill Lexicon & Pattern Matching** | Akriti Sengar | Regex-based technical skills lexicon compilation. |
+| **BM25 Lexical Retrieval Baseline** | Akriti Sengar | Okapi BM25 implementation across corpus postings. |
+| **Trust & Risk Rules Formulation** | Akriti Sengar | Scam heuristics (fees, contact info, empty profiles). |
+| **Supervised Risk Classifier Training** | Akriti Sengar | SGD Logistic Regression model on n-gram features. |
+| **Initial Streamlit Dashboard Shell** | Akriti Sengar | Initial Streamlit interface layout and search controls. |
+| **Dense Vector Representation & Encoding** | Bhawna Rani | MiniLM and Multi-QA dense embeddings (doc & chunks). |
+| **FAISS Vector Indexing & Verification** | Bhawna Rani | FAISS `IndexFlatIP` build, inner product verification. |
+| **Sliding-Window Chunk Mapping** | Bhawna Rani | 130-word chunking pipeline, max pooling aggregation. |
+| **Reciprocal Rank Fusion (RRF) Engine** | Bhawna Rani | RRF algorithm implementation and smoothing k-ablation. |
+| **Relevance Pool Construction & Labelling** | Bhawna Rani | `make_pool.py` script, 517 pooled candidate annotations. |
+| **Information Retrieval Evaluation Suite** | Bhawna Rani | P@5, MRR, nDCG@10 metrics + automated `ranx` validation. |
+| **Generative RAG Explanation Pipeline** | Bhawna Rani | Gemini 3.5 Flash RAG module, passage retrieval, prompt. |
+| **Deterministic Guardrails & Caching** | Bhawna Rani | 5 guardrails, cosine abstain filter, SHA-256 disk cache. |
+| **Manual RAG Evaluation & Audit** | Bhawna Rani | Scored 22 RAG instances on 3 criteria, citation audit. |
+| **macOS OpenMP Crash Fix & UI Overhaul** | Bhawna Rani | Resolved libomp segfault, full Streamlit UI redesign. |
+| **Project Report Synthesis & Verification** | Bhawna Rani | Authored comprehensive 24-section formal project report. |
 
-### 2. Detailed Description of Bhawna Rani's Extra Technical Contributions
-Beyond the standard assigned semantic search and hybrid ranking pipeline, Bhawna Rani executed five major technical and experimental contributions that were vital to the project's completion:
-1. **Ground-Truth Pool Construction & Labelling (Task B7 / A8):** Relevance labeling was originally planned as a joint consensus task between both partners. Because Akriti was unavailable, Bhawna single-handedly engineered the pooling script (`src/make_pool.py`) pooling 517 candidate documents across all 16 queries and 6 retriever runs, and independently executed manual relevance grading on the 3-point scale across all 517 rows (`data/eval/pool_for_labelling.csv`, `labels_bhawna.csv`, and `data/eval/qrels.json`). This provided the empirical foundation for all reported evaluation metrics.
-2. **Generative RAG Pipeline & Deterministic Guardrails (Task B9 - Originally Kshitij's Task):** Following Kshitij's departure from active development, Bhawna fully adopted the RAG pipeline. She developed the modular architecture (`src/rag_explain.py`) using the new `google-genai` SDK with Gemini 3.5 Flash, authored the structured prompt template (`rag/prompts/explain_v1.txt`), engineered five deterministic guardrails (preventing JSON parse failures, hallucinated sources, quote mismatches, ungrounded skills, and defamation), calibrated the cosine abstain threshold (0.30), and implemented SHA-256 disk caching to ensure zero duplicate API latency.
-3. **RAG Manual Evaluation & Citation Audit (Task B10 - Originally Kshitij's Task):** Bhawna designed the manual evaluation methodology assessing 22 non-abstained RAG responses across Relevance, Evidence Support, and Citation Attribution (`reports/rag_eval_sheet.csv`). She compiled the comprehensive citation reference sheet (`reports/rag_citation_reference.md`) verifying verbatim chunk overlap and authored the formal evaluation analysis (`reports/rag_eval.md`).
-4. **Low-Level macOS Debugging & UI Modernization (Task B11):** While Akriti provided an initial Streamlit skeleton, the application suffered from broken placeholder imports, missing dependencies, and type errors. Bhawna overhauled the application:
-   - Resolved all module paths and installed missing dependencies.
-   - Diagnosed a critical native C-level segfault (`EXC_BAD_ACCESS` in `libomp.dylib`) on macOS ARM64 Apple Silicon by analyzing system crash reports (`Python-*.ips`) and resolved it by enforcing single-threaded OpenMP execution (`faiss.omp_set_num_threads(1)`).
-   - Eliminated the clunky top-level blue alert banner and embedded clean, card-level RAG explanation expanders.
-   - Implemented session state management to eliminate unwanted automatic search execution.
-   - Corrected skill-matching logic to prioritize user-entered skills over query-extracted terms.
-5. **Evaluation Benchmarking & Formal Report Synthesis (Task B8 & B12):** Bhawna built the custom evaluation suite (`src/eval_metrics.py`), cross-validated all hand-coded metric implementations against `ranx`, authored the comprehensive design decision logs (`docs/decisions_bhawna.md`), study notes (`docs/notes_bhawna.md`), and authored the complete formal project report adhering to the strict 24-section institutional format in both Word (`.docx`) and Markdown (`.md`).
+### 1. Work Distribution: Bhawna Rani (Enrollment No. 992509220008)
+- **Dense Vector Embeddings & Indexing:** Generated 384-dimensional dense semantic vectors across the entire corpus using `all-MiniLM-L6-v2` and `multi-qa-MiniLM-L6-cos-v1`. Engineered FAISS `IndexFlatIP` vector indexing with cosine inner product equivalence and automated verification.
+- **Sliding-Window Chunking & Max Pooling:** Designed 130-word sliding-window chunking (42,480 chunk vectors) with chunk-to-document max pooling retrieval.
+- **Hybrid Reciprocal Rank Fusion:** Implemented the score-invariant Reciprocal Rank Fusion (RRF) engine, conducted parameter ablation across $k \in \{10, 30, 60, 100\}$, and integrated dual-column comparative retrieval.
+- **Relevance Pooling & Ground-Truth Annotation:** Engineered the candidate pooling harness (`src/make_pool.py`) pooling 517 candidate documents across 16 queries and 6 retriever runs, and performed relevance grading on a 3-point scale across all 517 rows.
+- **IR Metric Suite & ranx Cross-Validation:** Developed custom implementations for Precision@5, Mean Reciprocal Rank (MRR), and nDCG@10, mathematically cross-validating them against the academic `ranx` library.
+- **Grounded RAG Pipeline & Deterministic Guardrails:** Architected the generative RAG explanation engine using Gemini 3.5 Flash, authored structured prompts, calibrated the cosine abstain threshold (0.30), engineered 5 deterministic guardrails (format, source ID, quote match, skill overwrite, defamation filter), and implemented SHA-256 disk caching.
+- **RAG Manual Evaluation & Citation Audit:** Conducted manual qualitative evaluation of 22 non-abstained RAG explanation cards across Relevance, Evidence Support, and Citation Attribution, and compiled the citation reference audit.
+- **Low-Level macOS ARM64 Debugging & UI Redesign:** Diagnosed and resolved the native OpenMP SIGSEGV multi-threading crash in `libomp.dylib` on Apple Silicon, and redesigned the interactive Streamlit dashboard.
+- **Project Report Synthesis:** Authored the complete formal 24-section project report in Microsoft Word (`.docx`) and Markdown (`.md`) formats, adhering strictly to institutional guidelines.
 
-### 3. Summary of Akriti Sengar's Foundational Contributions
-Akriti Sengar provided the initial foundation upon which the system was constructed:
-1. Downloading the raw EMSCAD dataset and verifying its licensing.
-2. Performing exploratory data analysis (`notebooks/01_eda.ipynb`).
-3. Executing data cleaning, HTML stripping, and building the standardized Parquet corpus (`corpus.parquet`).
-4. Assembling the initial regex-based skill lexicon (`skills_lexicon.csv`) and extraction function (`src/skills.py`).
-5. Implementing the initial Okapi BM25 baseline script (`src/bm25_search.py`).
-6. Training the initial SGD Logistic Regression risk classifier and compiling the heuristic scam rules (`risk/rules.py`, `risk/risk_reports.json`).
-7. Providing the initial Streamlit application shell.
+### 2. Work Distribution: Akriti Sengar (Enrollment No. 992509220001)
+- **Corpus Acquisition & Licensing Verification:** Sourced the EMSCAD benchmark dataset (17,880 listings), verified CC-BY-NC-SA licensing, and set up the raw data storage.
+- **Exploratory Data Analysis:** Conducted initial exploratory data analysis on job title distributions, company profiles, requirements fields, and class imbalance (`notebooks/01_eda.ipynb`).
+- **Data Preprocessing & Parquet Schema:** Executed HTML tag stripping, text normalization, missing-field handling, and exported the standardized cleaned corpus (`corpus.parquet`, 15,560 rows).
+- **Skill Lexicon Construction:** Assembled the initial regex-based skill lexicon (`skills_lexicon.csv`) covering technical skills and tools for candidate matching.
+- **BM25 Lexical Retrieval Baseline:** Implemented the initial Okapi BM25 inverted index retrieval pipeline using `rank_bm25` across corpus postings.
+- **Heuristic Risk Rule Formulation:** Formulated deterministic scam detection heuristic rules based on common fraudulent job characteristics (unsolicited fees, suspicious contact emails, empty company profiles).
+- **Supervised Risk Classifier Training:** Trained the SGD Logistic Regression classifier on word and character n-grams to identify potentially fraudulent job postings.
+- **Streamlit Application Scaffold:** Developed the initial prototype Streamlit application shell for interactive demonstration.
 
 ---
 
