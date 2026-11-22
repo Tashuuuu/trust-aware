@@ -9,14 +9,36 @@ from src.bm25_search import bm25_search
 from src.skills import extract_skills, match_skills
 from risk.risk_report import risk_report
 
-# Bhawna's parts: adjust these import paths to her real module names
+# Bhawna's parts — B5/B6/B9
 try:
-    from src.hybrid import hybrid_search, semantic_search
-except Exception:
+    from src.semantic import hybrid_search, semantic_search
+    _semantic_ok = True
+except Exception as _e:
     hybrid_search = semantic_search = None
+    _semantic_ok = False
+
 try:
-    from rag.explain import explain
-except Exception:
+    from src.rag_explain import explain as _explain_raw
+
+    def explain(query, doc_ids):
+        """Adapter: explain() returns {doc_id: answer_dict}; app expects one summary string."""
+        try:
+            results = _explain_raw(query, doc_ids)
+        except Exception as exc:
+            return {"answer": f"Explanation unavailable: {exc}"}
+        lines = []
+        for doc_id, ans in results.items():
+            if ans.get("insufficient_evidence"):
+                continue
+            why = ans.get("why_relevant", "")
+            warn = ans.get("warning_notes", "")
+            if why:
+                lines.append(f"**{doc_id}:** {why}")
+            if warn:
+                lines.append(f"  ⚠️ {warn}")
+        return {"answer": "\n\n".join(lines) if lines else "No strong matches found for this query."}
+
+except Exception as _e2:
     explain = None
 
 st.set_page_config(page_title="Trust-Aware Internship Search", layout="wide")
