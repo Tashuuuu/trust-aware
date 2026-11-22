@@ -2,8 +2,10 @@
 data/raw/
 index/*.npy
 index/*.index
+index/*.joblib
 rag/cache/
 __pycache__/
 .ipynb_checkpoints/
 .venv/
 *.pyc
+.DS_Store

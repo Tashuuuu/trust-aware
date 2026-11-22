@@ -10,6 +10,9 @@ Usage:
 import json
 import math
 import os
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 from pathlib import Path
 
 import numpy as np
@@ -145,6 +148,7 @@ def build_index(model_name: str = MODEL_A, use_chunks: bool = False):
 def _load_index(model_name: str = MODEL_A, use_chunks: bool = False):
     """Load FAISS index + doc_ids (lazy, cached per tag)."""
     import faiss
+    faiss.omp_set_num_threads(1)
 
     tag      = _model_tag(model_name, use_chunks)
     idx_path = INDEX_DIR / f"faiss_{tag}.index"
@@ -154,6 +158,8 @@ def _load_index(model_name: str = MODEL_A, use_chunks: bool = False):
     if not hasattr(_load_index, "_cache"):
         _load_index._cache = {}
     if tag not in _load_index._cache:
+        import torch
+        torch.set_num_threads(1)
         from sentence_transformers import SentenceTransformer
         _load_index._cache[tag] = (
             SentenceTransformer(model_name),
