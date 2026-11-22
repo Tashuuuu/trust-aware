@@ -54,6 +54,7 @@ with st.sidebar:
     show_risk = st.toggle("Show risk", True)
     show_rag = st.toggle("Show AI explanations (RAG)", True, disabled=explain is None)
     compare = st.toggle("Compare BM25 vs Hybrid", False, disabled=hybrid_search is None)
+    sidebar_search = st.button("🔍 Search", type="primary", use_container_width=True)
 
 
 def search(m, q, k):
@@ -101,32 +102,44 @@ def render(results, user_skills, key, explanations=None):
                 st.write(r.search_text)
 
 
-if st.button("Search") or query:
-    user_skills = {s.strip().lower() for s in skills_in.split(",") if s.strip()}
-    user_skills |= extract_skills(query)
+if "has_searched" not in st.session_state:
+    st.session_state.has_searched = False
 
-    def get_explanations(docs):
-        if show_rag and explain:
-            try:
-                return explain(query, docs)
-            except Exception as e:
-                st.caption(f"Explanation unavailable: {e}")
-        return None
+main_search = st.button("Search")
+if main_search or sidebar_search:
+    st.session_state.has_searched = True
 
-    if compare and hybrid_search:
-        res_bm25 = search("BM25", query, k)
-        res_hybrid = search("Hybrid", query, k)
-        exp_bm25 = get_explanations([d for d, _ in res_bm25])
-        exp_hybrid = get_explanations([d for d, _ in res_hybrid])
-        c1, c2 = st.columns(2)
-        with c1:
-            st.markdown("### BM25"); render(res_bm25, user_skills, "a", exp_bm25)
-        with c2:
-            st.markdown("### Hybrid"); render(res_hybrid, user_skills, "b", exp_hybrid)
+if st.session_state.has_searched:
+    if not query.strip():
+        st.warning("Please enter a query in the sidebar.")
     else:
-        res = search(method, query, k)
-        exps = get_explanations([d for d, _ in res])
-        render(res, user_skills, "main", exps)
+        user_skills = {s.strip().lower() for s in skills_in.split(",") if s.strip()}
+        user_skills |= extract_skills(query)
+
+        def get_explanations(docs):
+            if show_rag and explain:
+                try:
+                    return explain(query, docs)
+                except Exception as e:
+                    st.caption(f"Explanation unavailable: {e}")
+            return None
+
+        if compare and hybrid_search:
+            res_bm25 = search("BM25", query, k)
+            res_hybrid = search("Hybrid", query, k)
+            exp_bm25 = get_explanations([d for d, _ in res_bm25])
+            exp_hybrid = get_explanations([d for d, _ in res_hybrid])
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("### BM25"); render(res_bm25, user_skills, "a", exp_bm25)
+            with c2:
+                st.markdown("### Hybrid"); render(res_hybrid, user_skills, "b", exp_hybrid)
+        else:
+            res = search(method, query, k)
+            exps = get_explanations([d for d, _ in res])
+            render(res, user_skills, "main", exps)
+else:
+    st.info("👈 Set your query and options in the sidebar, then click **Search** to see matching internships.")
 
 st.divider()
 st.caption("Data: EMSCAD (Vidros et al., 2017), 2012–2014, one platform, mostly English/US. "
