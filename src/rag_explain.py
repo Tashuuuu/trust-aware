@@ -69,20 +69,24 @@ def _call_llm(prompt: str) -> str:
         with open(cp) as f:
             return json.load(f)["response"]
 
-    # --- Gemini API (Option A) ---
+    # --- Gemini API (new google-genai SDK) ---
     try:
-        import google.generativeai as genai
+        from google import genai as google_genai
+        from google.genai import types as genai_types
         from dotenv import load_dotenv
         load_dotenv()
         api_key = os.environ.get("GEMINI_API_KEY", "")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not set in .env")
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash",   # update if name changes
-            generation_config={"temperature": 0, "response_mime_type": "application/json"},
+        client = google_genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model="gemini-3.5-flash",
+            contents=prompt,
+            config=genai_types.GenerateContentConfig(
+                temperature=0,
+                response_mime_type="application/json",
+            ),
         )
-        response = model.generate_content(prompt)
         raw = response.text
     except Exception as e:
         print(f"⚠️  LLM call failed: {e}. Returning insufficient_evidence.")

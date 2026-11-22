@@ -207,7 +207,7 @@ def semantic_search(query: str, k: int = 100,
     model, index, doc_ids = _load_index(model_name, use_chunks)
     q_vec = model.encode([query], normalize_embeddings=True).astype("float32")
     scores, idxs = index.search(q_vec, k if not use_chunks else k * 3)
-    results = [(doc_ids[i], float(s)) for i, s in zip(idxs[0], scores[0])]
+    results = [(str(doc_ids[i]), float(s)) for i, s in zip(idxs[0], scores[0])]
 
     if use_chunks:
         # Keep best chunk score per doc_id
@@ -277,24 +277,24 @@ def hybrid_search(query: str, k: int = 100,
 
     # --- Semantic ranking ---
     sem_results = semantic_search(query, k=k, model_name=sem_model, use_chunks=use_chunks)
-    sem_ranking = [doc_id for doc_id, _ in sem_results]
+    sem_ranking = [str(doc_id) for doc_id, _ in sem_results]
 
-    # --- BM25 ranking (from cached run file or Akriti's live function) ---
+    # --- BM25 ranking (cached run for known qids; live call for arbitrary queries) ---
     bm25_ranking: list[str] = []
-    if bm25_path.exists():
+    qid = _query_to_qid(query)
+    if qid and bm25_path.exists():
+        # Known query — use pre-computed run file (fast, deterministic)
         with open(bm25_path) as f:
             bm25_run = json.load(f)
-        # Match query to closest qid (simple: search for exact text match via queries.json)
-        qid = _query_to_qid(query)
-        if qid and qid in bm25_run:
-            bm25_ranking = sorted(bm25_run[qid], key=lambda d: bm25_run[qid][d], reverse=True)
+        if qid in bm25_run:
+            bm25_ranking = [str(d) for d in sorted(bm25_run[qid], key=lambda d: bm25_run[qid][d], reverse=True)]
     else:
-        # Try importing Akriti's live function
+        # Arbitrary/live query — call Akriti's live BM25 function
         try:
-            from src.bm25_search import bm25_search  # type: ignore
-            bm25_ranking = [doc_id for doc_id, _ in bm25_search(query, k)]
-        except ImportError:
-            print("⚠️  BM25 run file not found and bm25_search not importable. Returning semantic only.")
+            from src.bm25_search import bm25_search as _bm25_live  # type: ignore
+            bm25_ranking = [str(doc_id) for doc_id, _ in _bm25_live(query, k)]
+        except Exception as exc:
+            print(f"⚠️  BM25 live search failed ({exc}). Using semantic-only fallback.")
             return sem_results
 
     return rrf([bm25_ranking, sem_ranking], k=rrf_k, top_n=k)
