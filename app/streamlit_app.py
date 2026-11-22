@@ -4,6 +4,8 @@ import os
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
 import sys, pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -126,20 +128,21 @@ if st.session_state.has_searched:
                     st.caption(f"Explanation unavailable: {e}")
             return None
 
-        if compare and hybrid_search:
-            res_bm25 = search("BM25", query, k)
-            res_hybrid = search("Hybrid", query, k)
-            exp_bm25 = get_explanations([d for d, _ in res_bm25])
-            exp_hybrid = get_explanations([d for d, _ in res_hybrid])
-            c1, c2 = st.columns(2)
-            with c1:
-                st.markdown("### BM25"); render(res_bm25, user_skills, "a", exp_bm25)
-            with c2:
-                st.markdown("### Hybrid"); render(res_hybrid, user_skills, "b", exp_hybrid)
-        else:
-            res = search(method, query, k)
-            exps = get_explanations([d for d, _ in res])
-            render(res, user_skills, "main", exps)
+        with st.spinner("Searching postings and preparing explanations..."):
+            if compare and hybrid_search:
+                res_bm25 = search("BM25", query, k)
+                res_hybrid = search("Hybrid", query, k)
+                exp_bm25 = get_explanations([d for d, _ in res_bm25])
+                exp_hybrid = get_explanations([d for d, _ in res_hybrid])
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.markdown("### BM25"); render(res_bm25, user_skills, "a", exp_bm25)
+                with c2:
+                    st.markdown("### Hybrid"); render(res_hybrid, user_skills, "b", exp_hybrid)
+            else:
+                res = search(method, query, k)
+                exps = get_explanations([d for d, _ in res])
+                render(res, user_skills, "main", exps)
 else:
     st.info("Set your query and options in the sidebar, then click **Search** to see matching internships.")
 
