@@ -7,11 +7,6 @@
 [![Tests](https://img.shields.io/badge/Pytest-18%20Passed-brightgreen)](https://docs.pytest.org/)
 [![License](https://img.shields.io/badge/Dataset-EMSCAD%20(CC--BY--NC--SA)-blue)](https://zenodo.org/record/1045233)
 
-> **Course:** Information Retrieval & Semantic Web (25M21CA119)  
-> **Department:** Department of Computer Applications, Jaypee Institute of Information Technology (JIIT), Noida  
-> **Supervisor:** Mr. Keshan Srivastava  
-> **Authors:** Bhawna Rani (Enrollment No.: 992509220008) & Akriti Sengar (Enrollment No.: 992509220001)
-
 ---
 
 ## 📌 Overview
