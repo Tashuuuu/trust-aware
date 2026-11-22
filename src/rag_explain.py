@@ -34,7 +34,7 @@ def _get_top_chunks(doc_id: str, query: str,
     from sentence_transformers import SentenceTransformer
     import numpy as np
     import pandas as pd
-    from src.semantic import chunk_text
+    from src.semantic import chunk_text, _load_index
 
     corpus = pd.read_parquet(CORPUS_PATH).set_index("doc_id")
     if doc_id not in corpus.index:
@@ -42,7 +42,7 @@ def _get_top_chunks(doc_id: str, query: str,
     text   = str(corpus.loc[doc_id, "search_text"])
     chunks = chunk_text(text)
 
-    model  = SentenceTransformer(model_name)
+    model, _, _ = _load_index(model_name)
     q_vec  = model.encode([query], normalize_embeddings=True).astype("float32")
     c_vecs = model.encode(chunks, normalize_embeddings=True).astype("float32")
     scores = (c_vecs @ q_vec.T).ravel()

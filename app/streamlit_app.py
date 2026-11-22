@@ -1,4 +1,10 @@
 """Run: streamlit run app/streamlit_app.py"""
+import os
+# Prevent OpenMP and Tokenizer crashes on macOS ARM64 / multi-threaded Streamlit
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 import sys, pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
