@@ -22,6 +22,12 @@ MD_PATH = REPORTS_DIR / "project_report.md"
 
 PR_CURVE_IMG = REPORTS_DIR / "pr_curve.png"
 RETRIEVAL_IMG = REPORTS_DIR / "retrieval_comparison.png"
+FIGURES_DIR = REPORTS_DIR / "figures"
+FIG4_IMG = FIGURES_DIR / "fig4_dashboard.png"
+FIG5_IMG = FIGURES_DIR / "fig5_risk.png"
+FIG6_IMG = FIGURES_DIR / "fig6_rag.png"
+FIG7_IMG = FIGURES_DIR / "fig7_abstain.png"
+FIG8_IMG = FIGURES_DIR / "fig8_compare.png"
 
 
 def set_cell_background(cell, fill_hex):
@@ -485,6 +491,14 @@ def build_docx():
     add_bullet("src/eval_metrics.py: Implements custom IR metric calculators (precision_at_k, mrr, ndcg_at_k) and automated ranx cross-verification.", bold_prefix="6. ")
     add_bullet("app/streamlit_app.py: The interactive presentation dashboard featuring method selection, live parameter sliders, risk warnings, and grounded AI explanation expanders.", bold_prefix="7. ")
 
+    add_p("Operational Dashboard Interface: Figure 4 displays the interactive Streamlit search interface executing a query for 'machine learning internship for a fresher' with skill filters ('python, scikit-learn'). The dashboard transparently presents candidate skill match analysis ('Matching: machine learning python', 'Missing: scikit-learn'), expandable full posting text, retrieval method controls, and live result sliders.")
+    if FIG4_IMG.exists():
+        doc.add_paragraph().alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.paragraphs[-1].paragraph_format.space_before = Pt(8)
+        doc.paragraphs[-1].paragraph_format.space_after = Pt(2)
+        doc.paragraphs[-1].add_run().add_picture(str(FIG4_IMG), width=Inches(5.8))
+        add_caption("Figure 4: Interactive Streamlit UI Search Dashboard with Skill Gap Analysis and Filter Controls (reports/figures/fig4_dashboard.png)")
+
     doc.add_page_break()
 
     # =========================================================================
@@ -541,6 +555,14 @@ def build_docx():
         doc.paragraphs[-1].add_run().add_picture(str(RETRIEVAL_IMG), width=Inches(5.5))
         add_caption("Figure 3: Retrieval Comparison Across Sparse, Dense, and Hybrid Architectures (reports/retrieval_comparison.png)")
 
+    add_p("Dual-Column Comparative Inspection (BM25 vs. Hybrid RRF): To empirically demonstrate the qualitative ranking divergence between sparse lexical matching and hybrid retrieval, the application incorporates a live dual-column comparison view. Figure 8 depicts side-by-side search results for the query 'trainee developer fresh graduate'. While BM25 ranks postings strictly by keyword frequency, Hybrid RRF leverages dense vector similarity to elevate semantically aligned engineering graduate trainee positions ('Engineering Graduate Trainee @ Upstream') ahead of purely lexical matches, providing direct visual confirmation of Reciprocal Rank Fusion.")
+    if FIG8_IMG.exists():
+        doc.add_paragraph().alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.paragraphs[-1].paragraph_format.space_before = Pt(8)
+        doc.paragraphs[-1].paragraph_format.space_after = Pt(2)
+        doc.paragraphs[-1].add_run().add_picture(str(FIG8_IMG), width=Inches(5.8))
+        add_caption("Figure 8: Dual-Column Comparative View Evaluating BM25 Lexical Matching Against Hybrid RRF (reports/figures/fig8_compare.png)")
+
     add_p("Per-Query Performance Breakdown: Table 3 breaks down retrieval outcomes across the five core queries (q1–q5). BM25 plain and Hybrid RRF consistently identify relevant documents at rank 1 (MRR = 1.000). However, dense retrieval exhibits vulnerability on specialized queries (q2 and q3), pulling in irrelevant general software engineering roles.")
 
     # Table 3: Per-Query Breakdown
@@ -577,6 +599,14 @@ def build_docx():
     for row in t4_data:
         add_table_row(t4, row, bg_hex="F2F2F2" if row[0] == "OVERALL AVERAGE" else None)
 
+    add_p("Qualitative Inspection of Grounded RAG Explanations: Figure 6 displays a representative AI explanation card generated for an entry-level Data Analyst internship query. The model synthesizes concise, accurate relevance justifications grounded directly in the posting's retrieved chunks, accompanied by exact bracketed citation references ('[emscad_4589#c0]', '[emscad_4589#c1]'), demonstrating complete adherence to the deterministic attribution and anti-hallucination guardrails.")
+    if FIG6_IMG.exists():
+        doc.add_paragraph().alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.paragraphs[-1].paragraph_format.space_before = Pt(8)
+        doc.paragraphs[-1].paragraph_format.space_after = Pt(2)
+        doc.paragraphs[-1].add_run().add_picture(str(FIG6_IMG), width=Inches(5.8))
+        add_caption("Figure 6: Grounded RAG Match Explanation with Source Chunk Citations [doc_id#c] and Verified Attributes (reports/figures/fig6_rag.png)")
+
     add_p("Guardrail Verification Audit: Across 80 total RAG generation instances (22 real LLM explanations generated, 58 abstained by cosine similarity filter), the guardrail framework recorded: 0 JSON syntax parse errors, 0 invalid source citations, 0 unsupported quote mismatches, 114 deterministic skill overwrites (preventing LLM hallucination of missing technical skills), and 0 defamation violations.")
 
     # Table 5: Guardrail Stats
@@ -594,12 +624,28 @@ def build_docx():
     for row in t5_data:
         add_table_row(t5, row)
 
+    add_p("Abstain Mechanism in Action: Figure 7 demonstrates the active enforcement of the cosine similarity abstain guardrail on out-of-domain query q16 ('deep sea welding internship'). Despite candidate documents being retrieved via nearest-neighbor search, their maximum cosine similarity falls below the 0.30 grounding threshold. Rather than generating a deceptive, hallucinated match summary, the system safely triggers its abstain safeguard, presenting an explicit notice: 'Explanation Abstained: Insufficient evidence in this posting to match the query above the threshold (anti-hallucination guardrail active).'")
+    if FIG7_IMG.exists():
+        doc.add_paragraph().alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.paragraphs[-1].paragraph_format.space_before = Pt(8)
+        doc.paragraphs[-1].paragraph_format.space_after = Pt(2)
+        doc.paragraphs[-1].add_run().add_picture(str(FIG7_IMG), width=Inches(5.8))
+        add_caption("Figure 7: Out-of-Domain Query Abstain Behavior Triggered by Cosine Similarity Guardrail (reports/figures/fig7_abstain.png)")
+
     if PR_CURVE_IMG.exists():
         doc.add_paragraph().alignment = WD_ALIGN_PARAGRAPH.CENTER
         doc.paragraphs[-1].paragraph_format.space_before = Pt(8)
         doc.paragraphs[-1].paragraph_format.space_after = Pt(2)
         doc.paragraphs[-1].add_run().add_picture(str(PR_CURVE_IMG), width=Inches(4.5))
         add_caption("Figure 2: Precision-Recall Curve of the Logistic Risk Classifier on Held-Out Test Set (reports/pr_curve.png)")
+
+    add_p("Live Risk Warning Signals in Interface: In addition to offline statistical validation, the risk detection engine was audited under live search execution. Figure 5 depicts the interface output for query q4 ('work-from-home data entry role promising...'). The engine flags high-risk fraudulent postings (model probability 0.94 and 0.98), transparently details triggered heuristic rules ('vague_company: company profile is empty or very short'), and highlights the specific n-gram features ('data entry, entry, clerk, administrative, customer service') that elevated the risk score. Crucially, the system frames all alerts under the responsible disclaimer: 'Warnings are signals, not proof of fraud.'")
+    if FIG5_IMG.exists():
+        doc.add_paragraph().alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.paragraphs[-1].paragraph_format.space_before = Pt(8)
+        doc.paragraphs[-1].paragraph_format.space_after = Pt(2)
+        doc.paragraphs[-1].add_run().add_picture(str(FIG5_IMG), width=Inches(5.8))
+        add_caption("Figure 5: Transparent Risk Detection Engine Displaying Warning Flags, Trigger Terms, and Disclaimers (reports/figures/fig5_risk.png)")
 
     # =========================================================================
     # xix. DISCUSSION
@@ -931,6 +977,9 @@ The primary dataset utilized is the **Employment Scam Aegean Dataset (EMSCAD)** 
 - `src/eval_metrics.py`: Custom P@k, nDCG@k, MRR implementations cross-tested with `ranx`.
 - `app/streamlit_app.py`: Interactive web UI.
 
+![Figure 4: Interactive Streamlit UI Search Dashboard with Skill Gap Analysis and Filter Controls](figures/fig4_dashboard.png)  
+*Figure 4: Interactive Streamlit UI Search Dashboard with Skill Gap Analysis and Filter Controls.*
+
 ---
 
 ## xvi. Experimental Setup and Test Queries
@@ -966,6 +1015,9 @@ The primary dataset utilized is the **Employment Scam Aegean Dataset (EMSCAD)** 
 ![Retrieval Evaluation Comparison](retrieval_comparison.png)  
 *Figure 3: Retrieval Evaluation Comparison Across Systems (P@5, nDCG@10, MRR).*
 
+![Figure 8: Dual-Column Comparative View Evaluating BM25 Lexical Matching Against Hybrid RRF](figures/fig8_compare.png)  
+*Figure 8: Dual-Column Comparative View Evaluating BM25 Lexical Matching Against Hybrid RRF.*
+
 ### Table 3: Per-Query Performance Comparison Across Core Queries (q1–q5)
 | Query ID | Query Intent Description | Top-1 Retrieved Document | Relevance Status & Notes |
 | :--- | :--- | :--- | :--- |
@@ -986,6 +1038,9 @@ The primary dataset utilized is the **Employment Scam Aegean Dataset (EMSCAD)** 
 | `q16`: Deep Sea Welding (Abstain) | 1 | 0.00 | 2.00 | 2.00 | 4.00 |
 | **OVERALL AVERAGE** | **22** | **1.14** | **1.95** | **1.95** | **5.05** |
 
+![Figure 6: Grounded RAG Match Explanation with Source Chunk Citations](figures/fig6_rag.png)  
+*Figure 6: Grounded RAG Match Explanation with Source Chunk Citations [doc_id#c] and Verified Attributes.*
+
 ### Table 5: Deterministic Guardrail Auditing Statistics (80 Instances)
 | Guardrail Verification Check | Failure Count | Audit Outcome & Enforcement Action |
 | :--- | :--- | :--- |
@@ -995,8 +1050,14 @@ The primary dataset utilized is the **Employment Scam Aegean Dataset (EMSCAD)** 
 | Deterministic Skill Overwrite | 114 | Model skills overwritten by regex lexicon extractor. |
 | Defamation Keyword Neutralizer | 0 | No unlawful accusations of 'fraud' generated by LLM. |
 
+![Figure 7: Out-of-Domain Query Abstain Behavior Triggered by Cosine Similarity Guardrail](figures/fig7_abstain.png)  
+*Figure 7: Out-of-Domain Query Abstain Behavior Triggered by Cosine Similarity Guardrail.*
+
 ![Risk Classifier Precision-Recall Curve](pr_curve.png)  
 *Figure 2: Precision-Recall Curve of the Logistic Risk Classifier on Held-Out Test Set.*
+
+![Figure 5: Transparent Risk Detection Engine Displaying Warning Flags, Trigger Terms, and Disclaimers](figures/fig5_risk.png)  
+*Figure 5: Transparent Risk Detection Engine Displaying Warning Flags, Trigger Terms, and Disclaimers.*
 
 ---
 
