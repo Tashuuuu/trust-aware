@@ -139,7 +139,7 @@ if st.session_state.has_searched:
             exps = get_explanations([d for d, _ in res])
             render(res, user_skills, "main", exps)
 else:
-    st.info("👈 Set your query and options in the sidebar, then click **Search** to see matching internships.")
+    st.info("Set your query and options in the sidebar, then click **Search** to see matching internships.")
 
 st.divider()
 st.caption("Data: EMSCAD (Vidros et al., 2017), 2012–2014, one platform, mostly English/US. "
