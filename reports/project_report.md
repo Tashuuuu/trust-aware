@@ -30,6 +30,64 @@ Empirical evaluation conducted across 16 standardized search queries and 517 poo
 
 ---
 
+## Table of Contents
+
+| Section | Title | Page |
+| :--- | :--- | :--- |
+| **ii** | Abstract | 2 |
+| **TOC** | Table of Contents | 3 |
+| **LOF** | List of Figures | 4 |
+| **LOT** | List of Tables | 4 |
+| **iii** | Introduction | 5 |
+| **iv** | Problem Statement | 5 |
+| **v** | Objectives | 6 |
+| **vi** | Information Need / Use Case | 6 |
+| **vii** | Dataset / Corpus Description | 7 |
+| **viii** | Background / Literature Study | 8 |
+| **ix** | Project Scope and Requirements | 9 |
+| **x** | System Architecture | 10 |
+| **xi** | Data Preparation and Preprocessing | 11 |
+| **xii** | Document Representation | 12 |
+| **xiii** | Indexing and Retrieval | 12 |
+| **xiv** | Ranking / Semantic / Knowledge-Based Component | 13 |
+| **xv** | Implementation | 14 |
+| **xvi** | Experimental Setup and Test Queries | 15 |
+| **xvii** | Retrieval Evaluation | 16 |
+| **xviii** | Results and Comparative Analysis | 17 |
+| **xix** | Discussion | 20 |
+| **xx** | Limitations | 21 |
+| **xxi** | Future Scope | 21 |
+| **xxii** | Conclusion | 22 |
+| **xxiii** | Individual Contributions | 23 |
+| | *Work Distribution: Akriti Sengar (992509220001)* | 23 |
+| | *Work Distribution: Bhawna Rani (992509220008)* | 23 |
+| **xxiv** | References | 24 |
+
+---
+
+## List of Figures
+
+- **Figure 1:** End-to-End System Architecture Pipeline Diagram *(Page 10)*
+- **Figure 2:** Precision-Recall Curve of the Logistic Risk Classifier on Held-Out Test Set *(Page 19)*
+- **Figure 3:** Retrieval Comparison Across Sparse, Dense, and Hybrid Architectures *(Page 17)*
+- **Figure 4:** Interactive Streamlit UI Search Dashboard with Skill Gap Analysis and Filter Controls *(Page 14)*
+- **Figure 5:** Transparent Risk Detection Engine Displaying Warning Flags, Trigger Terms, and Disclaimers *(Page 19)*
+- **Figure 6:** Grounded RAG Match Explanation with Source Chunk Citations `[doc_id#c]` and Verified Attributes *(Page 18)*
+- **Figure 7:** Out-of-Domain Query Abstain Behavior Triggered by Cosine Similarity Guardrail *(Page 18)*
+- **Figure 8:** Dual-Column Comparative View Evaluating BM25 Lexical Matching Against Hybrid RRF *(Page 17)*
+
+---
+
+## List of Tables
+
+- **Table 1:** Standardized Schema of Processed EMSCAD Corpus *(Page 7)*
+- **Table 2:** Retrieval Evaluation Results Across All Systems (16 Queries) *(Page 17)*
+- **Table 3:** Per-Query Performance Comparison Across Core Queries (q1–q5) *(Page 18)*
+- **Table 4:** RAG Explanation Evaluation Across Relevance, Evidence, and Attribution (0–2 Scale) *(Page 18)*
+- **Table 5:** Deterministic Guardrail Auditing Statistics (80 Instances) *(Page 18)*
+
+---
+
 ## iii. Introduction
 The modern digital recruitment ecosystem has democratized job hunting, enabling students and early-career professionals to browse thousands of internship and entry-level employment opportunities across diverse web portals. Despite this technological proliferation, navigating recruitment listings remains fraught with cognitive friction, information asymmetry, and substantial security risks. Job seekers, particularly undergraduate students and freshers, frequently struggle to formulate exact keyword queries that match disparate corporate taxonomies. A query for an "entry-level data analyst internship" might miss exceptionally well-matched postings titled "Junior Business Intelligence Trainee" or "Analytics Associate" when evaluated strictly through traditional lexical search engines.
 
