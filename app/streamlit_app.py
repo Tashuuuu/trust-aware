@@ -80,10 +80,12 @@ def render(results, user_skills, key, explanations=None):
             # Clean per-posting RAG explanation
             if show_rag and explanations and doc_id in explanations:
                 exp = explanations[doc_id]
-                if not exp.get("insufficient_evidence"):
-                    why = exp.get("why_relevant", "")
-                    warn = exp.get("warning_notes", "")
-                    with st.expander("🤖 AI Match Explanation (RAG)", expanded=True):
+                with st.expander("🤖 AI Match Explanation (RAG)", expanded=True):
+                    if exp.get("insufficient_evidence"):
+                        st.info("ℹ️ **Explanation Abstained:** Insufficient evidence in this posting to match the query above the threshold (anti-hallucination guardrail active).")
+                    else:
+                        why = exp.get("why_relevant", "")
+                        warn = exp.get("warning_notes", "")
                         if why:
                             st.markdown(why)
                         if warn:
