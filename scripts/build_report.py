@@ -642,9 +642,48 @@ def build_docx():
     # xxiii. INDIVIDUAL CONTRIBUTIONS
     # =========================================================================
     add_heading_1("xxiii. Individual Contributions")
-    add_p("The distribution of work across the project lifecycle was structured into two clear development phases:")
-    add_p("Akriti Sengar contributed during the project inception phase by inspecting the initial raw EMSCAD dataset, performing exploratory data cleaning, constructing the foundational corpus schema (corpus.parquet), establishing the initial BM25 baseline script (src/bm25_search.py), and assembling the initial risk rules and classifier scaffold (risk/).", bold_prefix="Akriti Sengar: ")
-    add_p("Bhawna Rani assumed full technical and implementation leadership following the initial setup, executing all remaining core tasks: (1) manual review and annotation of the 517-document evaluation pool (data/eval/pool_for_labelling.csv and qrels.json); (2) building and verifying the dense FAISS vector indexing pipeline across document-level and chunked configurations; (3) conducting embedding model comparative experiments (MiniLM vs. Multi-QA); (4) implementing hand-crafted Reciprocal Rank Fusion (RRF) and parameter ablations; (5) engineering the automated IR evaluation suite (src/eval_metrics.py) with ranx cross-verification; (6) designing and implementing the complete RAG explanation architecture (src/rag_explain.py), Gemini prompt engineering, 5-tier guardrails, and SHA-256 disk caching; (7) conducting manual evaluation and scoring across all 22 RAG instances (reports/rag_eval_sheet.csv); (8) integrating all components into the interactive Streamlit application (app/streamlit_app.py), including resolving the macOS ARM64 Apple Silicon OpenMP crash and refining the user interface; and (9) synthesizing the comprehensive design decision logs, study notes, and final project report.", bold_prefix="Bhawna Rani: ")
+    add_p("The operational distribution of work across the project lifecycle was structured into two primary development phases. In the original project synopsis, tasks had tentatively been distributed across three team members (with several components designated as [K] for Kshitij Tripathi). However, active technical development was carried out exclusively by Akriti Sengar and Bhawna Rani. Akriti established the initial dataset foundation, preprocessing schema, and baseline components. Following this initial stage, Bhawna Rani assumed complete technical leadership, taking ownership of all advanced retrieval, vector indexing, hybrid fusion, evaluation pooling and annotation, RAG explanation engineering, low-level macOS debugging, UI refinement, and project documentation.")
+
+    add_heading_2("1. Task Allocation Matrix (Planned vs. Actual Execution)")
+    add_p("Table 6 provides a comprehensive task-by-task breakdown comparing the original assignments from the project task plans (Akriti_Task_Plan.md and Bhawna_Task_Plan.md) with the actual operational execution, explicitly noting tasks where Bhawna contributed substantial extra engineering.")
+
+    # Table 6: Task Allocation Matrix
+    add_caption("Table 6: Project Task Distribution and Responsibility Matrix")
+    t6 = doc.add_table(rows=0, cols=4)
+    t6.alignment = WD_TABLE_ALIGNMENT.CENTER
+    add_table_row(t6, ["Task ID & Description", "Original Plan Owner", "Actual Execution Owner", "Contribution Type & Deliverables"], is_header=True)
+    t6_data = [
+        ["A0/B0: Repo & Environment Setup", "Akriti & Bhawna", "Akriti & Bhawna", "Repo setup, venv configuration, requirements.txt."],
+        ["A1-A3: Corpus Inspection & Cleaning", "Akriti Sengar", "Akriti Sengar", "Raw EMSCAD download, EDA, corpus.parquet schema."],
+        ["A6: Skills Lexicon & Extraction", "Akriti Sengar", "Akriti (Initial) / Bhawna (Fix)", "Initial regex lexicon; Bhawna fixed app skill priority."],
+        ["A7: BM25 Baseline Retrieval", "Akriti Sengar", "Akriti (Initial) / Bhawna (Live)", "Initial BM25 script; Bhawna integrated live queries."],
+        ["A10-A12: Risk Rules & Classifier", "Akriti [K]", "Akriti Sengar", "Initial regex rules, SGD model, risk_reports.json."],
+        ["A13: Streamlit UI Scaffold", "Akriti [K]", "Akriti Sengar", "Initial single-page Streamlit app skeleton."],
+        ["B1: 6 Core IR Concepts Study Notes", "Bhawna Rani", "Bhawna Rani", "Authored comprehensive notes in docs/notes_bhawna.md."],
+        ["B2: Prototype Notebook Sample", "Bhawna Rani", "Bhawna Rani", "Built & ran B2_prototype.ipynb on EMSCAD sample."],
+        ["B3: Dense Vector Embeddings", "Bhawna Rani", "Bhawna Rani", "Full corpus embeddings: MiniLM (doc & chunks) + Multi-QA."],
+        ["B4: FAISS Indexing & Verification", "Bhawna Rani", "Bhawna Rani", "FAISS IndexFlatIP, verify_faiss(), tag cache bug fix."],
+        ["B5-B6: Semantic Runs & Hybrid RRF", "Bhawna Rani", "Bhawna Rani", "Hand-crafted RRF engine, k-ablation, live query fusion."],
+        ["B7/A8: Pool Generation & Labelling", "Joint Planned", "Bhawna Rani (EXTRA)", "Built make_pool.py, single-handedly labeled 517 rows."],
+        ["B8: IR Metrics & ranx Cross-Check", "Bhawna Rani", "Bhawna Rani", "Custom P@5, MRR, nDCG@10 engine + ranx validation."],
+        ["B9: Grounded RAG Explanations", "Kshitij [K]", "Bhawna Rani (EXTRA)", "Gemini 3.5 Flash RAG pipeline, 5 guardrails, disk cache."],
+        ["B10: Manual RAG Evaluation & Audit", "Kshitij [K]", "Bhawna Rani (EXTRA)", "Scored 22 RAG instances on 3 criteria, citation audit."],
+        ["B11: Streamlit App Integration & Fixes", "Joint Planned", "Bhawna Rani (EXTRA)", "Fixed imports, OpenMP macOS segfault, UI overhaul."],
+        ["B12: Final Reports & Documentation", "Bhawna Rani", "Bhawna Rani", "Authored decisions log, retrieval report, and 24-sec report."]
+    ]
+    for row in t6_data:
+        add_table_row(t6, row, bg_hex="F2F2F2" if "EXTRA" in row[2] else None)
+
+    add_heading_2("2. Detailed Description of Bhawna Rani's Extra Technical Contributions")
+    add_p("Beyond the standard assigned semantic search and hybrid ranking pipeline, Bhawna Rani executed five major technical and experimental contributions that were vital to the project's completion:")
+    add_bullet("Full Responsibility for Evaluation Ground-Truth Annotation (Task B7 / A8): Relevance labeling was originally planned as a joint consensus task between both partners. Because Akriti was unavailable, Bhawna single-handedly engineered the pooling script (src/make_pool.py) pooling 517 candidate documents across all 16 queries and 6 retriever runs, and independently executed manual relevance grading on the 3-point scale across all 517 rows (data/eval/pool_for_labelling.csv, labels_bhawna.csv, and data/eval/qrels.json). This provided the empirical foundation for all reported evaluation metrics.", bold_prefix="1. Ground-Truth Pool Construction & Labelling: ")
+    add_bullet("End-to-End Ownership of the RAG Explanation Engine (Task B9 - Originally Kshitij's Task): Following Kshitij's departure from active development, Bhawna fully adopted the RAG pipeline. She developed the modular architecture (src/rag_explain.py) using the new google-genai SDK with Gemini 3.5 Flash, authored the structured prompt template (rag/prompts/explain_v1.txt), engineered five deterministic guardrails (preventing JSON parse failures, hallucinated sources, quote mismatches, ungrounded skills, and defamation), calibrated the cosine abstain threshold (0.30), and implemented SHA-256 disk caching to ensure zero duplicate API latency.", bold_prefix="2. Generative RAG Pipeline & Deterministic Guardrails: ")
+    add_bullet("Manual RAG Evaluation & Citation Verification (Task B10 - Originally Kshitij's Task): Bhawna designed the manual evaluation methodology assessing 22 non-abstained RAG responses across Relevance, Evidence Support, and Citation Attribution (reports/rag_eval_sheet.csv). She compiled the comprehensive citation reference sheet (reports/rag_citation_reference.md) verifying verbatim chunk overlap and authored the formal evaluation analysis (reports/rag_eval.md).", bold_prefix="3. RAG Manual Evaluation & Citation Audit: ")
+    add_bullet("Streamlit Application Debugging & Complete UI Overhaul (Task B11): While Akriti provided an initial Streamlit skeleton, the application suffered from broken placeholder imports, missing dependencies, and type errors. Bhawna overhauled the application: (a) resolved all module paths and installed missing dependencies; (b) diagnosed a critical native C-level segfault (EXC_BAD_ACCESS in libomp.dylib) on macOS ARM64 Apple Silicon by analyzing system crash reports (Python-*.ips) and resolved it by enforcing single-threaded OpenMP execution (faiss.omp_set_num_threads(1)); (c) eliminated the clunky top-level blue alert banner and embedded clean, card-level RAG explanation expanders; (d) implemented session state management to eliminate unwanted automatic search execution; and (e) corrected skill-matching logic to prioritize user-entered skills over query-extracted terms.", bold_prefix="4. Low-Level macOS Debugging & UI Modernization: ")
+    add_bullet("System Benchmarking & Project Report Authorship (Task B8 & B12): Bhawna built the custom evaluation suite (src/eval_metrics.py), cross-validated all hand-coded metric implementations against ranx, authored the comprehensive design decision logs (docs/decisions_bhawna.md), study notes (docs/notes_bhawna.md), and authored the complete formal project report adhering to the strict 24-section institutional format in both Word (.docx) and Markdown (.md).", bold_prefix="5. Evaluation Benchmarking & Formal Report Synthesis: ")
+
+    add_heading_2("3. Summary of Akriti Sengar's Foundational Contributions")
+    add_p("Akriti Sengar provided the initial foundation upon which the system was constructed: (1) downloading the raw EMSCAD dataset and verifying its licensing; (2) performing exploratory data analysis (notebooks/01_eda.ipynb); (3) executing data cleaning, HTML stripping, and building the standardized Parquet corpus (corpus.parquet); (4) assembling the initial regex-based skill lexicon (skills_lexicon.csv) and extraction function (src/skills.py); (5) implementing the initial Okapi BM25 baseline script (src/bm25_search.py); (6) training the initial SGD Logistic Regression risk classifier and compiling the heuristic scam rules (risk/rules.py, risk/risk_reports.json); and (7) providing the initial Streamlit application shell.")
 
     # =========================================================================
     # xxiv. REFERENCES
@@ -994,19 +1033,52 @@ This project demonstrates that combining classical BM25 retrieval, FAISS dense v
 ---
 
 ## xxiii. Individual Contributions
-The distribution of work across the project lifecycle was structured into two clear development phases:
+The operational distribution of work across the project lifecycle was structured into two primary development phases. In the original project synopsis, tasks had tentatively been distributed across three team members (with several components designated as `[K]` for Kshitij Tripathi). However, active technical development was carried out exclusively by Akriti Sengar and Bhawna Rani. Akriti established the initial dataset foundation, preprocessing schema, and baseline components. Following this initial stage, Bhawna Rani assumed complete technical leadership, taking ownership of all advanced retrieval, vector indexing, hybrid fusion, evaluation pooling and annotation, RAG explanation engineering, low-level macOS debugging, UI refinement, and project documentation.
 
-- **Akriti Sengar:** Contributed during the project inception phase by inspecting the initial raw EMSCAD dataset, performing exploratory data cleaning, constructing the foundational corpus schema (`corpus.parquet`), establishing the initial BM25 baseline script (`src/bm25_search.py`), and assembling the initial risk rules and classifier scaffold (`risk/`).
-- **Bhawna Rani:** Assumed full technical and implementation leadership following the initial setup, executing all remaining core tasks:
-  1. Manual review and annotation of the 517-document evaluation pool (`data/eval/pool_for_labelling.csv` and `qrels.json`).
-  2. Building and verifying the dense FAISS vector indexing pipeline across document-level and chunked configurations.
-  3. Conducting embedding model comparative experiments (MiniLM vs. Multi-QA).
-  4. Implementing hand-crafted Reciprocal Rank Fusion (RRF) and parameter ablations.
-  5. Engineering the automated IR evaluation suite (`src/eval_metrics.py`) with `ranx` cross-verification.
-  6. Designing and implementing the complete RAG explanation architecture (`src/rag_explain.py`), Gemini prompt engineering, 5-tier guardrails, and SHA-256 disk caching.
-  7. Conducting manual evaluation and scoring across all 22 RAG instances (`reports/rag_eval_sheet.csv`).
-  8. Integrating all components into the interactive Streamlit application (`app/streamlit_app.py`), including resolving the macOS ARM64 Apple Silicon OpenMP crash and refining the user interface.
-  9. Synthesizing the comprehensive design decision logs, study notes, and final project report.
+### 1. Task Allocation Matrix (Planned vs. Actual Execution)
+
+| Task ID & Description | Original Plan Owner | Actual Execution Owner | Contribution Type & Deliverables |
+| :--- | :--- | :--- | :--- |
+| **A0/B0: Repo & Environment Setup** | Akriti & Bhawna | Akriti & Bhawna | Repo setup, venv configuration, `requirements.txt`. |
+| **A1-A3: Corpus Inspection & Cleaning** | Akriti Sengar | Akriti Sengar | Raw EMSCAD download, EDA, `corpus.parquet` schema. |
+| **A6: Skills Lexicon & Extraction** | Akriti Sengar | Akriti (Initial) / Bhawna (Fix) | Initial regex lexicon; Bhawna fixed app skill priority. |
+| **A7: BM25 Baseline Retrieval** | Akriti Sengar | Akriti (Initial) / Bhawna (Live) | Initial BM25 script; Bhawna integrated live queries. |
+| **A10-A12: Risk Rules & Classifier** | Akriti `[K]` | Akriti Sengar | Initial regex rules, SGD model, `risk_reports.json`. |
+| **A13: Streamlit UI Scaffold** | Akriti `[K]` | Akriti Sengar | Initial single-page Streamlit app skeleton. |
+| **B1: 6 Core IR Concepts Study Notes** | Bhawna Rani | Bhawna Rani | Authored comprehensive notes in `docs/notes_bhawna.md`. |
+| **B2: Prototype Notebook Sample** | Bhawna Rani | Bhawna Rani | Built & ran `B2_prototype.ipynb` on EMSCAD sample. |
+| **B3: Dense Vector Embeddings** | Bhawna Rani | Bhawna Rani | Full corpus embeddings: MiniLM (doc & chunks) + Multi-QA. |
+| **B4: FAISS Indexing & Verification** | Bhawna Rani | Bhawna Rani | FAISS `IndexFlatIP`, `verify_faiss()`, tag cache bug fix. |
+| **B5-B6: Semantic Runs & Hybrid RRF** | Bhawna Rani | Bhawna Rani | Hand-crafted RRF engine, k-ablation, live query fusion. |
+| **B7/A8: Pool Generation & Labelling** | Joint Planned | **Bhawna Rani (EXTRA)** | Built `make_pool.py`, single-handedly labeled 517 rows. |
+| **B8: IR Metrics & ranx Cross-Check** | Bhawna Rani | Bhawna Rani | Custom P@5, MRR, nDCG@10 engine + `ranx` validation. |
+| **B9: Grounded RAG Explanations** | Kshitij `[K]` | **Bhawna Rani (EXTRA)** | Gemini 3.5 Flash RAG pipeline, 5 guardrails, disk cache. |
+| **B10: Manual RAG Evaluation & Audit** | Kshitij `[K]` | **Bhawna Rani (EXTRA)** | Scored 22 RAG instances on 3 criteria, citation audit. |
+| **B11: Streamlit App Integration & Fixes** | Joint Planned | **Bhawna Rani (EXTRA)** | Fixed imports, OpenMP macOS segfault, UI overhaul. |
+| **B12: Final Reports & Documentation** | Bhawna Rani | Bhawna Rani | Authored decisions log, retrieval report, and 24-sec report. |
+
+### 2. Detailed Description of Bhawna Rani's Extra Technical Contributions
+Beyond the standard assigned semantic search and hybrid ranking pipeline, Bhawna Rani executed five major technical and experimental contributions that were vital to the project's completion:
+1. **Ground-Truth Pool Construction & Labelling (Task B7 / A8):** Relevance labeling was originally planned as a joint consensus task between both partners. Because Akriti was unavailable, Bhawna single-handedly engineered the pooling script (`src/make_pool.py`) pooling 517 candidate documents across all 16 queries and 6 retriever runs, and independently executed manual relevance grading on the 3-point scale across all 517 rows (`data/eval/pool_for_labelling.csv`, `labels_bhawna.csv`, and `data/eval/qrels.json`). This provided the empirical foundation for all reported evaluation metrics.
+2. **Generative RAG Pipeline & Deterministic Guardrails (Task B9 - Originally Kshitij's Task):** Following Kshitij's departure from active development, Bhawna fully adopted the RAG pipeline. She developed the modular architecture (`src/rag_explain.py`) using the new `google-genai` SDK with Gemini 3.5 Flash, authored the structured prompt template (`rag/prompts/explain_v1.txt`), engineered five deterministic guardrails (preventing JSON parse failures, hallucinated sources, quote mismatches, ungrounded skills, and defamation), calibrated the cosine abstain threshold (0.30), and implemented SHA-256 disk caching to ensure zero duplicate API latency.
+3. **RAG Manual Evaluation & Citation Audit (Task B10 - Originally Kshitij's Task):** Bhawna designed the manual evaluation methodology assessing 22 non-abstained RAG responses across Relevance, Evidence Support, and Citation Attribution (`reports/rag_eval_sheet.csv`). She compiled the comprehensive citation reference sheet (`reports/rag_citation_reference.md`) verifying verbatim chunk overlap and authored the formal evaluation analysis (`reports/rag_eval.md`).
+4. **Low-Level macOS Debugging & UI Modernization (Task B11):** While Akriti provided an initial Streamlit skeleton, the application suffered from broken placeholder imports, missing dependencies, and type errors. Bhawna overhauled the application:
+   - Resolved all module paths and installed missing dependencies.
+   - Diagnosed a critical native C-level segfault (`EXC_BAD_ACCESS` in `libomp.dylib`) on macOS ARM64 Apple Silicon by analyzing system crash reports (`Python-*.ips`) and resolved it by enforcing single-threaded OpenMP execution (`faiss.omp_set_num_threads(1)`).
+   - Eliminated the clunky top-level blue alert banner and embedded clean, card-level RAG explanation expanders.
+   - Implemented session state management to eliminate unwanted automatic search execution.
+   - Corrected skill-matching logic to prioritize user-entered skills over query-extracted terms.
+5. **Evaluation Benchmarking & Formal Report Synthesis (Task B8 & B12):** Bhawna built the custom evaluation suite (`src/eval_metrics.py`), cross-validated all hand-coded metric implementations against `ranx`, authored the comprehensive design decision logs (`docs/decisions_bhawna.md`), study notes (`docs/notes_bhawna.md`), and authored the complete formal project report adhering to the strict 24-section institutional format in both Word (`.docx`) and Markdown (`.md`).
+
+### 3. Summary of Akriti Sengar's Foundational Contributions
+Akriti Sengar provided the initial foundation upon which the system was constructed:
+1. Downloading the raw EMSCAD dataset and verifying its licensing.
+2. Performing exploratory data analysis (`notebooks/01_eda.ipynb`).
+3. Executing data cleaning, HTML stripping, and building the standardized Parquet corpus (`corpus.parquet`).
+4. Assembling the initial regex-based skill lexicon (`skills_lexicon.csv`) and extraction function (`src/skills.py`).
+5. Implementing the initial Okapi BM25 baseline script (`src/bm25_search.py`).
+6. Training the initial SGD Logistic Regression risk classifier and compiling the heuristic scam rules (`risk/rules.py`, `risk/risk_reports.json`).
+7. Providing the initial Streamlit application shell.
 
 ---
 
