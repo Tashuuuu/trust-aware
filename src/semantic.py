@@ -13,6 +13,8 @@ import os
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 from pathlib import Path
 
 import numpy as np
@@ -85,7 +87,7 @@ def embed_corpus(model_name: str = MODEL_A, use_chunks: bool = False, batch_size
     df = load_corpus()
     print(f"Corpus: {len(df)} rows")
 
-    model = SentenceTransformer(model_name)
+    model = SentenceTransformer(model_name, local_files_only=True)
     print(f"Model: {model_name}  max_seq_length={model.max_seq_length}")
 
     if use_chunks:
@@ -162,7 +164,7 @@ def _load_index(model_name: str = MODEL_A, use_chunks: bool = False):
         torch.set_num_threads(1)
         from sentence_transformers import SentenceTransformer
         _load_index._cache[tag] = (
-            SentenceTransformer(model_name),
+            SentenceTransformer(model_name, local_files_only=True),
             faiss.read_index(str(idx_path)),
             np.load(ids_path, allow_pickle=True),
         )

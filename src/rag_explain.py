@@ -10,6 +10,11 @@ Usage:
 import hashlib
 import json
 import os
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 import re
 from pathlib import Path
 
@@ -21,6 +26,25 @@ ANSWERS_PATH = ROOT / "rag" / "answers.json"
 
 ABSTAIN_THRESHOLD = 0.30   # cosine similarity; update in decisions_bhawna.md after testing
 EVIDENCE_CHUNKS   = 2       # top chunks per posting to pass to LLM
+
+_CORPUS_CACHE = None
+def _get_corpus():
+    global _CORPUS_CACHE
+    if _CORPUS_CACHE is None:
+        import pandas as pd
+        _CORPUS_CACHE = pd.read_parquet(CORPUS_PATH).set_index("doc_id")
+    return _CORPUS_CACHE
+
+_ANSWERS_CACHE = None
+def _get_precomputed_answers():
+    global _ANSWERS_CACHE
+    if _ANSWERS_CACHE is None:
+        try:
+            with open(ANSWERS_PATH) as f:
+                _ANSWERS_CACHE = json.load(f)
+        except Exception:
+            _ANSWERS_CACHE = {}
+    return _ANSWERS_CACHE
 
 
 # ---------------------------------------------------------------------------
@@ -36,7 +60,7 @@ def _get_top_chunks(doc_id: str, query: str,
     import pandas as pd
     from src.semantic import chunk_text, _load_index
 
-    corpus = pd.read_parquet(CORPUS_PATH).set_index("doc_id")
+    corpus = _get_corpus()
     if doc_id not in corpus.index:
         return []
     text   = str(corpus.loc[doc_id, "search_text"])
@@ -183,10 +207,21 @@ def explain(query: str, doc_ids: list[str],
         risk_reports = {}
 
     prompt_template = PROMPT_PATH.read_text()
-    corpus = pd.read_parquet(CORPUS_PATH).set_index("doc_id")
+    corpus = _get_corpus()
+
+    precomp = _get_precomputed_answers()
+    norm_q = query.strip().lower()
+    matching_q_answers = None
+    for item in precomp.values():
+        if isinstance(item, dict) and item.get("query", "").strip().lower() == norm_q:
+            matching_q_answers = item.get("answers", {})
+            break
 
     results = {}
     for doc_id in doc_ids:
+        if matching_q_answers and doc_id in matching_q_answers:
+            results[doc_id] = matching_q_answers[doc_id]
+            continue
         # -- Evidence selection --
         chunks = _get_top_chunks(doc_id, query, model_name=model_name)
         if not chunks or chunks[0]["score"] < ABSTAIN_THRESHOLD:
